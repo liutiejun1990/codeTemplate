@@ -37,6 +37,7 @@ void insert(node_s** root,int value){
 	}
 }
 
+//递归方式
 node_s* findNode(node_s* root, int value){
 	if(root==NULL||root->value==value){
 		return root;
@@ -49,6 +50,23 @@ node_s* findNode(node_s* root, int value){
 	}
 }
 
+//非递归方式
+node_s* findNode2(node_s* root, int value){
+	while(root!=NULL){
+		if(root->value==value){
+			return root;
+		}
+		if(value<root->value){
+			root=root->left;
+		}
+		else{
+			root=root->right;
+		}
+	}
+	return NULL;
+}
+
+
 void print(node_s* root){
 	if(root==NULL){
 		return;
@@ -58,10 +76,59 @@ void print(node_s* root){
 	print(root->right);
 }
 
-void freeNode(node_s* node){
+//注意引用的使用
+void freeNode(node_s* &node){
+	if(node==NULL){
+		return;
+	}
+	node_s* tmp=NULL;
+	if(node->left==NULL&&node->right==NULL){
+		printf("left and right is NULL\n");
+		free(node);
+		node=NULL;
+		return;
+	}
+	else if(node->left==NULL){
+		tmp=node;
+		node=node->right;
+		free(tmp);
+		return;
+	}
+	else if(node->right==NULL){
+		tmp=node;
+		node=node->left;
+		free(tmp);
+		return;
+	}
+	else{
+		node_s* next=node->left;
+		while(next->right!=NULL){
+			next=next->right;
+		}
+		tmp=node;
+		node=next;
+		node->left=tmp->left;
+		node->right=tmp->right;
+		free(tmp);
+		return;
+	}
 }
 
-void deleteNode(node_s* root,int value){
+//注意**的使用
+void freeNode2(node_s** node){
+}
+
+//注意引用的使用
+void deleteNode(node_s* &root,int value){
+	if(root==NULL||root->value==value){
+		return freeNode(root);
+	}
+	else if(value<root->value){
+		deleteNode(root->left,value);
+	}
+	else{
+		deleteNode(root->right,value);
+	}
 }
 
 void buildTree(){
@@ -92,6 +159,9 @@ int main(){
 	if(ans!=NULL){
 		printf("find it, value is %d\n",ans->value);
 	}
+	printf("begin delete node,value is 1\n");
+	deleteNode(root,3);
+	print(root);
 	freeTree(root);
 	return 0;
 }
